@@ -17,6 +17,9 @@ export default class CatalogView extends View {
     public initialize() {
         super.initialize();
 
+        this._cam.fov = 45;
+        this._cam.position.set(0, 0.25, 1.75);
+
         this.initMeshes()
 
         this.setMeshPositions()
