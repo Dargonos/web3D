@@ -57,7 +57,7 @@ renderer.setClearColor(new Color('#464646'));
 
 const views = await loadViews(renderer);
 const params = new URLSearchParams(window.location.search);
-const viewId = params.get('tp') ?? params.get('view') ?? 'catalog-view';
+const viewId = params.get('tp') ?? params.get('view') ?? 'product-view';
 let viewIndex = views.findIndex((e) => e.name === viewId);
 viewIndex = viewIndex === -1 ? 0 : viewIndex;
 
