@@ -111,13 +111,17 @@ export default class ProductView extends View {
         //TODO add edition color panel
         this._scene.add(this.light, this.shadowPlaneMesh)
 
-
         //TODO arrow left tight to change mesh
 
     }
 
     public initialize() {
         super.initialize()
+
+        const catalogButton = document.getElementById('catalog');
+        if (catalogButton) {
+            catalogButton.style.visibility = 'visible'
+        }
 
         this._renderer.domElement.addEventListener( 'click', (event) => {
             this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;

@@ -29,6 +29,11 @@ export default class CatalogView extends View {
     public initialize() {
         super.initialize();
 
+        const catalogButton = document.getElementById('catalog');
+        if (catalogButton) {
+            catalogButton.style.visibility = 'hidden'
+        }
+
         this.initMeshes()
 
         this.setMeshPositions()

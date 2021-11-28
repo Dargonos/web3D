@@ -32,9 +32,12 @@ async function loadViews(renderer: WebGLRenderer): Promise<View[]> {
  *
  * @param view - View to run
  */
-function initView(view: View): void {
+function initView(view: View, product?: View | null): void {
   view.initialize();
   view.resize(canvas.width, canvas.height);
+  if (product) {
+    product.destroy();
+  }
 
   const title = document.getElementById('title');
   if (title) {
@@ -57,9 +60,26 @@ renderer.setClearColor(new Color('#464646'));
 
 const views = await loadViews(renderer);
 const params = new URLSearchParams(window.location.search);
-const viewId = params.get('tp') ?? params.get('view') ?? 'catalog-view';
+const viewId = params.get('tp') ?? params.get('view') ?? 'product-view';
 let viewIndex = views.findIndex((e) => e.name === viewId);
 viewIndex = viewIndex === -1 ? 0 : viewIndex;
+
+
+/**
+ * UI Initialization.
+ */
+const catalogButton = document.getElementById('catalog');
+if (catalogButton) {
+  catalogButton.addEventListener('click', () => {
+
+    console.log(views[0].name)
+    const product = views[viewIndex];
+    viewIndex = (viewIndex - 1);
+    if (viewIndex < 0) { viewIndex = views.length -1; }
+
+    initView(views[0], product)
+  });
+}
 
 /**
  * Lifecycle: Initialization.

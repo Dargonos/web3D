@@ -19,10 +19,28 @@ h2 {
   height: 100%;
 }
 
+.router-container {
+  position: absolute;
+  width: 100%;
+  top: 0;
+  display: flex;
+  justify-content: space-between;
+}
+
+.router-container .button {
+  padding: 10px;
+  border-radius: 4px;
+  margin: 20px;
+  border: 2px solid #ffffff;
+  cursor: grab;
+  user-select: none;
+}
+
+
 .button > p {
-  min-width: 46px;
+  min-width: 35px;
   margin: 0;
-  font-size: 2rem;
+  font-size: 1rem;
   text-align: center;
-  color: #ecf0f1;
+  color: #ffffff;
 }
