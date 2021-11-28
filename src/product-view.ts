@@ -12,7 +12,6 @@ import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 import {DRACOLoader} from "three/examples/jsm/loaders/DRACOLoader";
 
-
 export default class ProductView extends View {
     controls: OrbitControls;
     raycaster: Raycaster;
@@ -36,14 +35,15 @@ export default class ProductView extends View {
     constructor(renderer: WebGLRenderer, gltfPath: string) {
         super(renderer);
 
+        this._renderer.shadowMap.enabled = true;
+
         this.raycaster = new Raycaster();
         this.mouse = new Vector2(0,0);
 
-        //TODO position light
         this.light = new DirectionalLight(0xffffff);
         this.light.add(this.light.target);
         this.light.position.set(0, 0, 0);
-        this.light.target.position.set(10, -10, -12);
+        this.light.target.position.set(10, -12, -12);
 
         this.light.shadow.mapSize.set(1024,1024);
         this.light.shadow.camera.near = -5;
@@ -52,9 +52,10 @@ export default class ProductView extends View {
 
         this.shadowPlaneGeometry = new PlaneBufferGeometry(100,100);
         this.shadowPlaneMaterial = new ShadowMaterial();
-        this.shadowPlaneMesh = new Mesh(this.shadowPlaneGeometry, this.shadowPlaneMaterial);
-        this.shadowPlaneMesh.position.set(0,-0.55,0);
+        this.shadowPlaneMesh = new Mesh(this.shadowPlaneGeometry, new ShadowMaterial());
+        this.shadowPlaneMesh.position.set(0, -2,0);
         this.shadowPlaneMesh.rotation.x =  - Math.PI / 2;
+        this.shadowPlaneMesh.name = "Shadow"
         this.shadowPlaneMesh.receiveShadow = true;
 
         this.colorPickerGeometry = new SphereBufferGeometry(0.4)
@@ -83,9 +84,10 @@ export default class ProductView extends View {
                 model.scale.set( 0.01, 0.01, 0.01 )
                 model.castShadow = true
 
-                model.traverse((object) => {
-                    if (object instanceof Mesh) {
-                        object.material.color = this.colors[0];
+                model.traverse((child) => {
+                    if (child instanceof Mesh) {
+                        child.material.color = this.colors[0];
+                        child.castShadow = true;
                     }
                 });
 
@@ -94,7 +96,6 @@ export default class ProductView extends View {
             undefined,
             (err) => console.error(err)
         );
-        //this.traverseScene(this.colors[0])
 
         this.controls = new OrbitControls(this._cam, this._renderer.domElement) as OrbitControls;
 
@@ -108,8 +109,7 @@ export default class ProductView extends View {
                 this._scene.background = target.texture;
             });
 
-        //TODO add edition color panel
-        this._scene.add(this.light, this.shadowPlaneMesh)
+        this._scene.add( this.shadowPlaneMesh, this.light)
 
         //TODO arrow left tight to change mesh
 
@@ -158,7 +158,7 @@ export default class ProductView extends View {
 
     public traverseScene(color: Color) {
         this._scene.traverse((object) => {
-            if (object instanceof Mesh && object.name != "Picker") {
+            if (object instanceof Mesh && object.name != "Picker" && object.name != "Shadow") {
                 object.material.color = color;
             }
         });
