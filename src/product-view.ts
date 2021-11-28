@@ -61,7 +61,7 @@ export default class ProductView extends View {
         this.colorPickerGeometry = new SphereBufferGeometry(0.4)
 
         for (let idx = 0; idx < 7; idx++) {
-            let mesh = new Mesh(this.colorPickerGeometry, new MeshPhysicalMaterial())
+            let mesh = new Mesh(this.colorPickerGeometry, new MeshPhysicalMaterial({metalness: 0.2, roughness: 0.1}))
             mesh.position.set(5, idx, 0)
             mesh.material.color.set(this.colors[idx])
             mesh.name = "Picker"

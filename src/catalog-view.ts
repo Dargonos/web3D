@@ -6,6 +6,9 @@ import {
 } from "three";
 import {DRACOLoader} from "three/examples/jsm/loaders/DRACOLoader";
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
+import {BokehPass} from "three/examples/jsm/postprocessing/BokehPass";
+import {EffectComposer} from "three/examples/jsm/postprocessing/EffectComposer";
+import {RenderPass} from "three/examples/jsm/postprocessing/RenderPass";
 
 export default class CatalogView extends View {
     meshList: {model: Group, destination: Vector3}[] = []
@@ -17,6 +20,10 @@ export default class CatalogView extends View {
     mouse: Vector2
     itemTitle: HTMLElement | null
 
+
+    composer: EffectComposer;
+    bokehPass: BokehPass;
+
     constructor(renderer: WebGLRenderer) {
         super(renderer);
 
@@ -25,10 +32,23 @@ export default class CatalogView extends View {
         this.raycaster = new Raycaster()
         this.mouse = new Vector2(0, 0)
         this.itemTitle = document.getElementById('item_title')
+
+        const renderPass = new RenderPass( this._scene, this._cam );
+        this.bokehPass = new BokehPass( this._scene, this._cam, {
+            focus: 2,
+            aperture: 0.0001,
+            maxblur: 0.04,
+        });
+
+        this.composer = new EffectComposer(this._renderer);
+        this.composer.addPass(renderPass)
+        this.composer.addPass(this.bokehPass);
+        this.composer.setSize(window.innerWidth, window.innerHeight);
     }
 
     public initialize() {
         super.initialize();
+        this._gui.hide()
 
         const catalogButton = document.getElementById('catalog');
         if (catalogButton) {
@@ -171,6 +191,16 @@ export default class CatalogView extends View {
 
     public destroy() {
         super.destroy();
+    }
+
+    public resize(w: number, h: number) : void {
+        super.resize(w, h);
+        this.bokehPass.renderTargetDepth.setSize(w, h);
+        this.composer.setSize(w, h);
+    }
+
+    public render() {
+        this.composer.render();
     }
 
     public moveMeshes() {
