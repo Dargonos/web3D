@@ -122,6 +122,14 @@ export default class ProductView extends View {
         if (catalogButton) {
             catalogButton.style.visibility = 'visible'
         }
+        const previousButton = document.getElementById('previous');
+        if (previousButton) {
+            previousButton.style.visibility = 'visible'
+        }
+        const nextButton = document.getElementById('next');
+        if (nextButton) {
+            nextButton.style.visibility = 'visible'
+        }
 
         this._renderer.domElement.addEventListener( 'click', (event) => {
             this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;

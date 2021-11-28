@@ -33,6 +33,14 @@ export default class CatalogView extends View {
         if (catalogButton) {
             catalogButton.style.visibility = 'hidden'
         }
+        const previousButton = document.getElementById('previous');
+        if (previousButton) {
+            previousButton.style.visibility = 'hidden'
+        }
+        const nextButton = document.getElementById('next');
+        if (nextButton) {
+            nextButton.style.visibility = 'hidden'
+        }
 
         this.initMeshes()
 
