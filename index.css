@@ -43,13 +43,15 @@ body {
   width: 100%;
   top: 30%;
   display: flex;
-  justify-content: space-between;
+  color: #ffffff;
   visibility: hidden;
 }
 
 .info_display .item_title {
-  font-size: 2rem;
+  width: 100%;
+  font-size: 3rem;
   text-align: center;
+  visibility: hidden;
 }
 
 .button > p {
