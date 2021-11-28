@@ -60,7 +60,7 @@ renderer.setClearColor(new Color('#464646'));
 
 const views = await loadViews(renderer);
 const params = new URLSearchParams(window.location.search);
-const viewId = params.get('tp') ?? params.get('view') ?? 'product-view';
+const viewId = params.get('tp') ?? params.get('view') ?? 'catalog-view';
 let viewIndex = views.findIndex((e) => e.name === viewId);
 viewIndex = viewIndex === -1 ? 0 : viewIndex;
 
@@ -121,3 +121,16 @@ const resizeObserver = new ResizeObserver(entries => {
 });
 
 resizeObserver.observe(canvas);
+
+/*public function showMeshDetailView(gltfPath: string) {
+  const productViewId = params.get('tp') ?? params.get('view') ?? 'product-view';
+  let productViewIndex = views.findIndex((e) => e.name === productViewId);
+  productViewIndex = productViewIndex === -1 ? 0 : productViewIndex;
+  const product = views[viewIndex];
+
+  initView(views[productViewIndex], product);
+}*/
+
+/*export function testExport(message: string) {
+  console.log(message)
+}*/

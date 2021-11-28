@@ -1,15 +1,14 @@
 import {View} from "./view";
 import {
-    CircleGeometry,
-    DirectionalLight,
+    DirectionalLight, Group,
     Mesh,
-    MeshBasicMaterial,
-    MeshLambertMaterial,
-    OctahedronGeometry, Raycaster, Vector2, Vector3, WebGLRenderer,
+    Raycaster, Vector2, Vector3, WebGLRenderer,
 } from "three";
+import {DRACOLoader} from "three/examples/jsm/loaders/DRACOLoader";
+import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 
 export default class CatalogView extends View {
-    meshList: {mesh: Mesh, destination: Vector3}[] = []
+    meshList: {model: Group, destination: Vector3}[] = []
     spawnRange = 2
     itemMargin = 1
     movementSpeed = 0.1
@@ -50,15 +49,21 @@ export default class CatalogView extends View {
 
         this.initMeshes()
 
-        this.setMeshPositions()
+        //this.displayMeshes()
 
-        this.displayMeshes()
+        const dirLight1 = new DirectionalLight(0xffc0cb, 1);
+        dirLight1.add(dirLight1.target);
+        dirLight1.position.set(0, 0, 0);
+        dirLight1.target.position.set(8, -8, -12);
+        dirLight1.castShadow = true;
 
-        const dirLight = new DirectionalLight(0xffc0cb, 1);
-        dirLight.add(dirLight.target);
-        dirLight.position.set(0, 0, 0);
-        dirLight.target.position.set(8, -8, -12);
-        dirLight.castShadow = true;
+        const dirLight2 = new DirectionalLight(0xffc0cb, 1);
+        dirLight2.add(dirLight2.target);
+        dirLight2.position.set(0, 0, 0);
+        dirLight2.target.position.set(-8, -8, -12);
+        dirLight2.castShadow = true;
+
+        this._scene.add(dirLight1, dirLight2)
 
         window.addEventListener('wheel', (event) => {
             event.preventDefault()
@@ -73,49 +78,64 @@ export default class CatalogView extends View {
             const intersection = this.raycaster.intersectObject(this._scene, true)
             if (intersection && intersection.length > 0) {
                 console.log("item name: " + intersection[0].object.name)
+                //showMeshDetailView()
             }
         })
     }
 
     public initMeshes() {
-        const sun = new Mesh(new CircleGeometry(0.15, 32), new MeshBasicMaterial());
-        sun.material.color.set('#FFFF00');
-        sun.scale.set(0.5, 0.5, 0.5);
-        sun.name = "Sun"
-        this.meshList.push({mesh: sun, destination: new Vector3(0,0,0)})
+        const dracoLoader = new DRACOLoader();
+        dracoLoader.setDecoderPath( 'lib/draco/' );
+        const loaderGLTF = new GLTFLoader();
+        loaderGLTF.setDRACOLoader(dracoLoader);
 
-        const earth = new Mesh(new OctahedronGeometry(0.05, 1), new MeshBasicMaterial());
-        earth.material.color.set('#0020FF');
-        earth.scale.set(0.5, 0.5, 0.5);
-        earth.name = "Earth"
-        this.meshList.push({mesh: earth, destination: new Vector3(0,0,0)})
+        let limit = this._gltfPaths.length
+        for (let i = 0; i < limit; i++) {
+            let item = this._gltfPaths[i]
+            loaderGLTF.load(
+                item.path,
+                (gltf) => {
+                    console.log("Started loading " + item.name)
+                    const model = gltf.scene;
+                    if (i === limit - 1)
+                        model.position.set(-1 * this.itemMargin,0,0)
+                    else
+                        model.position.set(i * this.itemMargin,0,0)
 
-        const mars = new Mesh(new OctahedronGeometry(0.03, 4), new MeshLambertMaterial());
-        mars.material.color.set('#9B7653');
-        mars.name = "Mars"
-        this.meshList.push({mesh: mars, destination: new Vector3(0,0,0)})
+                    let scale = item.scale
+                    model.scale.set( scale, scale, scale )
+                    model.castShadow = true
 
-        const earth2 = new Mesh(new OctahedronGeometry(0.05, 1), new MeshBasicMaterial());
-        earth2.material.color.set('#20FF00');
-        earth2.scale.set(0.5, 0.5, 0.5);
-        earth2.name = "Yellow Earth"
-        this.meshList.push({mesh: earth2, destination: new Vector3(0,0,0)})
+                    model.traverse((child) => {
+                        if (child instanceof Mesh) {
+                            child.castShadow = true;
+                        }
+                    });
 
-        const earth3 = new Mesh(new OctahedronGeometry(0.05, 1), new MeshBasicMaterial());
-        earth3.material.color.set('#FF0020');
-        earth3.scale.set(0.5, 0.5, 0.5);
-        earth3.name = "Red Earth"
-        this.meshList.push({mesh: earth3, destination: new Vector3(0,0,0)})
+                    model.name = item.name
+                    this.meshList.push({model: model, destination: new Vector3(model.position.x,0,0)})
+
+                    if (- this.spawnRange <= model.position.x && model.position.x <= this.spawnRange)
+                        this._scene.add(model)
+
+                    console.log("Finished loading " + item.name)
+                },
+                undefined,
+                (err) => console.error(err)
+            );
+        }
+
+        this.updateItemTitle(this._gltfPaths[0].name)
     }
 
     public displayMeshes() {
         for (let i = 0; i < this.meshList.length; i++) {
-            let currentMesh = this.meshList[i].mesh
+            let currentModel = this.meshList[i].model
 
-            if (- this.spawnRange <= currentMesh.position.x && currentMesh.position.x <= this.spawnRange)
-                this._scene.add(currentMesh)
+            if (- this.spawnRange <= currentModel.position.x && currentModel.position.x <= this.spawnRange)
+                this._scene.add(currentModel)
             else
-                this._scene.remove(currentMesh)
+                this._scene.remove(currentModel)
         }
     }
 
@@ -127,20 +147,6 @@ export default class CatalogView extends View {
         console.log("Displayed mesh: " + this.displayedMeshName)
     }
 
-    public setMeshPositions() {
-        this.updateItemTitle(this.meshList[0].mesh.name)
-
-        for (let i = 0; i < this.meshList.length - 1; i++) {
-            let position = new Vector3(i * this.itemMargin, 0, 0)
-            this.meshList[i].mesh.position.set(position.x, position.y, position.z)
-            this.meshList[i].destination = position
-        }
-
-        let position = new Vector3(-1 * this.itemMargin, 0, 0)
-        this.meshList[this.meshList.length - 1].mesh.position.set(position.x, position.y, position.z)
-        this.meshList[this.meshList.length - 1].destination = position
-    }
-
     public updateMeshPositions(value: number) {
         let limit = (this.meshList.length - 2) * this.itemMargin
         for (let i = 0; i < this.meshList.length; i++) {
@@ -149,16 +155,16 @@ export default class CatalogView extends View {
 
             if (newPos.x >= limit) {
                 newPos.x = -this.itemMargin * 2
-                currentItem.mesh.position.x = newPos.x
+                currentItem.model.position.x = newPos.x
             }
             else if (newPos.x <= -limit) {
                 newPos.x = this.itemMargin * 2
-                currentItem.mesh.position.x = newPos.x
+                currentItem.model.position.x = newPos.x
             }
 
             this.meshList[i].destination = newPos
-            if (this.meshList[i].mesh.name != this.displayedMeshName && Math.abs(this.meshList[i].destination.x) < this.itemMargin / 3)
-                this.updateItemTitle(this.meshList[i].mesh.name)
+            if (this.meshList[i].model.name != this.displayedMeshName && Math.abs(this.meshList[i].destination.x) < this.itemMargin / 3)
+                this.updateItemTitle(this.meshList[i].model.name)
         }
         this.displayMeshes()
     }
@@ -171,11 +177,11 @@ export default class CatalogView extends View {
         for (let i = 0; i < this.meshList.length; i++) {
             let currentItem = this.meshList[i]
 
-            if (currentItem.destination != currentItem.mesh.position) {
-                if (this.movementSpeed * (currentItem.destination.x - currentItem.mesh.position.x) > Math.abs(currentItem.destination.x - currentItem.mesh.position.x)) {
-                    currentItem.mesh.translateX((currentItem.destination.x - currentItem.mesh.position.x))
+            if (currentItem.destination != currentItem.model.position) {
+                if (this.movementSpeed * (currentItem.destination.x - currentItem.model.position.x) > Math.abs(currentItem.destination.x - currentItem.model.position.x)) {
+                    currentItem.model.translateX((currentItem.destination.x - currentItem.model.position.x))
                 } else {
-                    currentItem.mesh.translateX((currentItem.destination.x - currentItem.mesh.position.x) * this.movementSpeed)
+                    currentItem.model.translateX((currentItem.destination.x - currentItem.model.position.x) * this.movementSpeed)
                 }
             }
         }

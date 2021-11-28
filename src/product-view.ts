@@ -70,6 +70,7 @@ export default class ProductView extends View {
 
         //TODO remove
         gltfPath = 'assets/models/LittlestTokyo.glb';
+        gltfPath = 'assets/models/Fox.glb';
 
         const dracoLoader = new DRACOLoader();
         dracoLoader.setDecoderPath( 'lib/draco/' );
