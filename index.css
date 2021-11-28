@@ -44,6 +44,19 @@ h2 {
   user-select: none;
 }
 
+.info_display {
+  position: absolute;
+  width: 100%;
+  top: 30%;
+  display: flex;
+  justify-content: space-between;
+  visibility: hidden;
+}
+
+.info_display .item_title {
+  font-size: 2rem;
+  text-align: center;
+}
 
 .button > p {
   min-width: 35px;

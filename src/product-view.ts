@@ -146,6 +146,11 @@ export default class ProductView extends View {
 
         });
 
+        const itemTitle = document.getElementById('item_title');
+        if (itemTitle) {
+            itemTitle.style.visibility = 'hidden'
+        }
+
         this._gui.hide()
     }
 
