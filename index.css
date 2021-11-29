@@ -24,7 +24,7 @@ body {
 .product-router {
   position: absolute;
   width: 100%;
-  top: 50%;
+  top: 75%;
   display: flex;
   justify-content: space-between;
 }
@@ -57,7 +57,7 @@ body {
 .button > p {
   min-width: 35px;
   margin: 10px;
-  font-size: 2rem;
+  font-size: 2.2rem;
   text-align: center;
   color: #ffffff;
 }
@@ -65,7 +65,7 @@ body {
 .buttonChangeItem > p {
   min-width: 35px;
   margin: 30px;
-  font-size: 1rem;
+  font-size: 1.2rem;
   text-align: center;
   color: #ffffff;
   text-decoration: underline;

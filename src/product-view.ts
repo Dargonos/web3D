@@ -57,7 +57,7 @@ export default class ProductView extends View {
         this.light.shadow.camera.far = 8;
         this.light.castShadow = true;
 
-        this.shadowPlaneGeometry = new PlaneBufferGeometry(100,100);
+        this.shadowPlaneGeometry = new PlaneBufferGeometry(2048,2048);
         this.shadowPlaneMaterial = new ShadowMaterial();
         this.shadowPlaneMesh = new Mesh(this.shadowPlaneGeometry, new ShadowMaterial());
         this.shadowPlaneMesh.position.set(0, -2,0);
