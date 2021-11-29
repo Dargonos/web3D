@@ -1,7 +1,7 @@
 import {View} from "./view";
 import {
     Color,
-    DirectionalLight, Group, Mesh, MeshPhysicalMaterial, PlaneBufferGeometry,
+    DirectionalLight, Group, Mesh, MeshPhysicalMaterial, PerspectiveCamera, PlaneBufferGeometry,
     PMREMGenerator, Raycaster, ShadowMaterial, SphereBufferGeometry,
     UnsignedByteType,
     Vector2,
@@ -18,8 +18,8 @@ export default class ProductView extends View {
     mouse: Vector2;
     light: DirectionalLight;
 
-    itemId: number
-    nextItemId: number
+    itemId: number = 0
+    nextItemId: number = 0
     loadedItem?: Group
     isAppearing: boolean = false
     isDisappearing: boolean = false
@@ -39,10 +39,12 @@ export default class ProductView extends View {
         new Color( "rgb(224,109,231)")];
     colorPickerGeometry: SphereBufferGeometry;
 
-    constructor(renderer: WebGLRenderer, itemID: number) {
+    constructor(renderer: WebGLRenderer) {
         super(renderer);
 
         this._renderer.shadowMap.enabled = true;
+        this._cam = new PerspectiveCamera(110);
+        this._cam.position.set(0, 0.25, 7);
 
         this.raycaster = new Raycaster();
         this.mouse = new Vector2(0,0);
@@ -75,13 +77,6 @@ export default class ProductView extends View {
             this._scene.add(mesh)
         }
 
-        //TODO remove
-        itemID = 0
-
-        this.itemId = itemID
-        this.nextItemId = this.itemId
-        this.loadItem(this.itemId)
-
         this.controls = new OrbitControls(this._cam, this._renderer.domElement) as OrbitControls;
 
         const pmremGenerator = new PMREMGenerator(this._renderer);
@@ -95,9 +90,6 @@ export default class ProductView extends View {
             });
 
         this._scene.add( this.shadowPlaneMesh, this.light)
-
-        //TODO arrow left tight to change mesh
-
     }
 
     public loadItem(itemId: number) {
@@ -134,8 +126,8 @@ export default class ProductView extends View {
         this.isDisappearing = true
     }
 
-    public initialize() {
-        super.initialize()
+    public initialize(itemID: number = 0) {
+        super.initialize(itemID)
 
         const catalogButton = document.getElementById('catalog');
         if (catalogButton) {
@@ -165,6 +157,10 @@ export default class ProductView extends View {
         }
 
         this._gui.hide()
+
+        this.itemId = itemID
+        this.nextItemId = this.itemId
+        this.loadItem(this.itemId)
     }
 
     public initPreviousButton() {
@@ -199,6 +195,10 @@ export default class ProductView extends View {
         this.shadowPlaneMaterial.dispose()
 
         this.colorPickerGeometry.dispose()
+        this.controls.dispose()
+
+        this._scene.clear()
+        console.log("Product scene destroyed")
     }
 
     public update(delta: number, elapsed: number) {

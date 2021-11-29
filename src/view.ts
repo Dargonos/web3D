@@ -52,6 +52,8 @@ export class View {
 
   private readonly _name: string;
 
+  public destinationItemId: number = 0
+
   constructor(renderer: WebGLRenderer) {
     this._renderer = renderer;
     this._scene = new Scene();
@@ -84,7 +86,7 @@ export class View {
    *
    * This is called each time you switch example
    */
-  public initialize() {
+  public initialize(itemId: number = 0) {
     this._gui.show();
   }
 

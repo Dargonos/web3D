@@ -54,6 +54,10 @@ body {
   visibility: hidden;
 }
 
+.product-detail-button {
+  visibility: hidden;
+}
+
 .button > p {
   min-width: 35px;
   margin: 10px;

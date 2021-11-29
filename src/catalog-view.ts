@@ -70,8 +70,6 @@ export default class CatalogView extends View {
 
         this.initMeshes()
 
-        //this.displayMeshes()
-
         const dirLight1 = new DirectionalLight(0xffc0cb, 1);
         dirLight1.add(dirLight1.target);
         dirLight1.position.set(0, 0, 0);
@@ -108,8 +106,19 @@ export default class CatalogView extends View {
             this.raycaster.setFromCamera(this.mouse, this._cam)
             const intersection = this.raycaster.intersectObject(this._scene, true)
             if (intersection && intersection.length > 0) {
-                console.log("item name: " + intersection[0].object.name)
-                //showMeshDetailView()
+                let intersectionObject = intersection[0].object
+
+                for (let i = 0; i < this.meshList.length; i++) {
+                    let item = this._gltfPaths[i]
+                    if (item.name == intersectionObject.name) {
+                        console.log("item name: " + item.name)
+                        this.destinationItemId = item.id
+
+                        const productDetailButton = document.getElementById('product-detail');
+                        if (productDetailButton)
+                            productDetailButton.click()
+                    }
+                }
             }
         })
     }
@@ -136,10 +145,12 @@ export default class CatalogView extends View {
                     let scale = item.scale
                     model.scale.set( scale, scale, scale )
                     model.castShadow = true
+                    model.name = item.name
 
                     model.traverse((child) => {
                         if (child instanceof Mesh) {
                             child.castShadow = true;
+                            child.name = item.name
                         }
                     });
 
@@ -202,6 +213,13 @@ export default class CatalogView extends View {
 
     public destroy() {
         super.destroy();
+
+        for (let i = 0; i < this.meshList.length; i++) {
+            this.meshList[i].model.clear()
+        }
+        this.meshList = []
+        this._scene.clear()
+        console.log("Catalog scene destroyed")
     }
 
     public resize(w: number, h: number) : void {

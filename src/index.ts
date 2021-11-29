@@ -31,9 +31,11 @@ async function loadViews(renderer: WebGLRenderer): Promise<View[]> {
  * the lifecycle methods `destroy()` and `initialize()`
  *
  * @param view - View to run
+ * @param product - View to destroy
+ * @param itemId - Item to display
  */
-function initView(view: View, product?: View | null): void {
-  view.initialize();
+function initView(view: View, product?: View | null, itemId: number = 0): void {
+  view.initialize(itemId);
   view.resize(canvas.width, canvas.height);
   if (product) {
     product.destroy();
@@ -60,7 +62,7 @@ renderer.setClearColor(new Color('#464646'));
 
 const views = await loadViews(renderer);
 const params = new URLSearchParams(window.location.search);
-const viewId = params.get('tp') ?? params.get('view') ?? 'product-view';
+const viewId = params.get('tp') ?? params.get('view') ?? 'catalog-view';
 let viewIndex = views.findIndex((e) => e.name === viewId);
 viewIndex = viewIndex === -1 ? 0 : viewIndex;
 
@@ -72,13 +74,23 @@ const catalogButton = document.getElementById('catalog');
 if (catalogButton) {
   catalogButton.addEventListener('click', () => {
 
-    console.log(views[0].name)
     const product = views[viewIndex];
     viewIndex = (viewIndex - 1);
     if (viewIndex < 0) { viewIndex = views.length -1; }
 
     initView(views[0], product)
   });
+}
+
+const productDetailButton = document.getElementById('product-detail');
+if (productDetailButton) {
+  productDetailButton.addEventListener('click', () => {
+    const product = views[viewIndex]
+    viewIndex = (viewIndex - 1)
+    if (viewIndex < 0) { viewIndex = views.length -1; }
+
+    initView(views[1], product, product.destinationItemId)
+  })
 }
 
 /**
