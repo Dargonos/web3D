@@ -36,8 +36,8 @@ export default class CatalogView extends View {
 
         const renderPass = new RenderPass( this._scene, this._cam );
         this.bokehPass = new BokehPass( this._scene, this._cam, {
-            focus: 2,
-            aperture: 0.0001,
+            focus: 10,
+            aperture: 0.0003,
             maxblur: 0.008,
         });
 

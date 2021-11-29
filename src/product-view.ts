@@ -13,10 +13,10 @@ import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 import {DRACOLoader} from "three/examples/jsm/loaders/DRACOLoader";
 
 export default class ProductView extends View {
-    controls: OrbitControls;
+    controls?: OrbitControls;
     raycaster: Raycaster;
     mouse: Vector2;
-    light: DirectionalLight;
+    light?: DirectionalLight;
 
     itemId: number = 0
     nextItemId: number = 0
@@ -24,9 +24,9 @@ export default class ProductView extends View {
     isAppearing: boolean = false
     isDisappearing: boolean = false
 
-    shadowPlaneGeometry: PlaneBufferGeometry;
-    shadowPlaneMaterial: ShadowMaterial;
-    shadowPlaneMesh: Mesh;
+    shadowPlaneGeometry?: PlaneBufferGeometry;
+    shadowPlaneMaterial?: ShadowMaterial;
+    shadowPlaneMesh?: Mesh;
 
     colors : Color[] = [
         new Color("rgb(255,255,255)"),
@@ -37,7 +37,7 @@ export default class ProductView extends View {
         new Color("rgb(0,0,255)"),
         new Color("rgb(94,15,215)"),
         new Color( "rgb(224,109,231)")];
-    colorPickerGeometry: SphereBufferGeometry;
+    colorPickerGeometry?: SphereBufferGeometry;
 
     constructor(renderer: WebGLRenderer) {
         super(renderer);
@@ -49,35 +49,6 @@ export default class ProductView extends View {
         this.raycaster = new Raycaster();
         this.mouse = new Vector2(0,0);
 
-        this.light = new DirectionalLight(0xffffff);
-        this.light.add(this.light.target);
-        this.light.position.set(0, 0, 0);
-        this.light.target.position.set(10, -12, -12);
-
-        this.light.shadow.mapSize.set(1024,1024);
-        this.light.shadow.camera.near = -5;
-        this.light.shadow.camera.far = 8;
-        this.light.castShadow = true;
-
-        this.shadowPlaneGeometry = new PlaneBufferGeometry(2048,2048);
-        this.shadowPlaneMaterial = new ShadowMaterial();
-        this.shadowPlaneMesh = new Mesh(this.shadowPlaneGeometry, new ShadowMaterial());
-        this.shadowPlaneMesh.position.set(0, -2,0);
-        this.shadowPlaneMesh.rotation.x =  - Math.PI / 2;
-        this.shadowPlaneMesh.name = "Shadow"
-        this.shadowPlaneMesh.receiveShadow = true;
-
-        this.colorPickerGeometry = new SphereBufferGeometry(0.4)
-
-        for (let idx = 0; idx < this.colors.length; idx++) {
-            let mesh = new Mesh(this.colorPickerGeometry, new MeshPhysicalMaterial({metalness: 0.2, roughness: 0.1}))
-            mesh.position.set(5, idx, 0)
-            mesh.material.color.set(this.colors[idx])
-            mesh.name = "Picker"
-            this._scene.add(mesh)
-        }
-
-        this.controls = new OrbitControls(this._cam, this._renderer.domElement) as OrbitControls;
 
         const pmremGenerator = new PMREMGenerator(this._renderer);
         pmremGenerator.compileEquirectangularShader();
@@ -89,7 +60,6 @@ export default class ProductView extends View {
                 this._scene.background = target.texture;
             });
 
-        this._scene.add( this.shadowPlaneMesh, this.light)
     }
 
     public loadItem(itemId: number) {
@@ -128,6 +98,37 @@ export default class ProductView extends View {
 
     public initialize(itemID: number = 0) {
         super.initialize(itemID)
+
+        this.light = new DirectionalLight(0xffffff);
+        this.light.add(this.light.target);
+        this.light.position.set(0, 0, 0);
+        this.light.target.position.set(10, -12, -12);
+
+        this.light.shadow.mapSize.set(1024,1024);
+        this.light.shadow.camera.near = -5;
+        this.light.shadow.camera.far = 8;
+        this.light.castShadow = true;
+
+        this.shadowPlaneGeometry = new PlaneBufferGeometry(2048,2048);
+        this.shadowPlaneMaterial = new ShadowMaterial();
+        this.shadowPlaneMesh = new Mesh(this.shadowPlaneGeometry, new ShadowMaterial());
+        this.shadowPlaneMesh.position.set(0, -2,0);
+        this.shadowPlaneMesh.rotation.x =  - Math.PI / 2;
+        this.shadowPlaneMesh.name = "Shadow"
+        this.shadowPlaneMesh.receiveShadow = true;
+
+        this.colorPickerGeometry = new SphereBufferGeometry(0.4)
+        this._scene.add( this.shadowPlaneMesh, this.light)
+
+        for (let idx = 0; idx < this.colors.length; idx++) {
+            let mesh = new Mesh(this.colorPickerGeometry, new MeshPhysicalMaterial({metalness: 0.2, roughness: 0.1}))
+            mesh.position.set(5, idx, 0)
+            mesh.material.color.set(this.colors[idx])
+            mesh.name = "Picker"
+            this._scene.add(mesh)
+        }
+
+        this.controls = new OrbitControls(this._cam, this._renderer.domElement) as OrbitControls;
 
         const catalogButton = document.getElementById('catalog');
         if (catalogButton) {
@@ -190,19 +191,19 @@ export default class ProductView extends View {
     public destroy() {
         super.destroy();
 
-        this.light.dispose()
-        this.shadowPlaneGeometry.dispose()
-        this.shadowPlaneMaterial.dispose()
+        this.light!.dispose()
+        this.shadowPlaneGeometry!.dispose()
+        this.shadowPlaneMaterial!.dispose()
 
-        this.colorPickerGeometry.dispose()
-        this.controls.dispose()
+        this.colorPickerGeometry!.dispose()
+        this.controls!.dispose()
 
         this._scene.clear()
         console.log("Product scene destroyed")
     }
 
     public update(delta: number, elapsed: number) {
-        this.controls.update();
+        this.controls!.update();
 
         if (this.loadedItem) {
             this.loadedItem.rotateY(this._rotationSpeed)
