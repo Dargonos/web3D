@@ -41,7 +41,7 @@ body {
 .info_display {
   position: absolute;
   width: 100%;
-  top: 30%;
+  top: 10%;
   display: flex;
   color: #ffffff;
   visibility: hidden;

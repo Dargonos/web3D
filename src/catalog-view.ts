@@ -15,6 +15,7 @@ export default class CatalogView extends View {
     spawnRange = 2
     itemMargin = 1
     movementSpeed = 0.1
+    rotationSpeed = 0.01
     displayedMeshName: string = ""
     raycaster: Raycaster
     mouse: Vector2
@@ -37,7 +38,7 @@ export default class CatalogView extends View {
         this.bokehPass = new BokehPass( this._scene, this._cam, {
             focus: 2,
             aperture: 0.0001,
-            maxblur: 0.04,
+            maxblur: 0.008,
         });
 
         this.composer = new EffectComposer(this._renderer);
@@ -206,12 +207,13 @@ export default class CatalogView extends View {
     public moveMeshes() {
         for (let i = 0; i < this.meshList.length; i++) {
             let currentItem = this.meshList[i]
+            currentItem.model.rotateY(this.rotationSpeed)
 
-            if (currentItem.destination != currentItem.model.position) {
+            if (currentItem.destination !== currentItem.model.position) {
                 if (this.movementSpeed * (currentItem.destination.x - currentItem.model.position.x) > Math.abs(currentItem.destination.x - currentItem.model.position.x)) {
-                    currentItem.model.translateX((currentItem.destination.x - currentItem.model.position.x))
+                    currentItem.model.position.x += currentItem.destination.x - currentItem.model.position.x
                 } else {
-                    currentItem.model.translateX((currentItem.destination.x - currentItem.model.position.x) * this.movementSpeed)
+                    currentItem.model.position.x += (currentItem.destination.x - currentItem.model.position.x) * this.movementSpeed
                 }
             }
         }
