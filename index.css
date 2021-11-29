@@ -19,6 +19,7 @@ body {
   top: 0;
   display: flex;
   justify-content: space-between;
+  visibility: hidden;
 }
 
 .product-router {
@@ -27,6 +28,7 @@ body {
   top: 75%;
   display: flex;
   justify-content: space-between;
+  visibility: hidden;
 }
 
 .back-router .product-router .button .buttonChangeItem {
@@ -36,6 +38,7 @@ body {
   border: 2px solid #ffffff;
   cursor: grab;
   user-select: none;
+  visibility: hidden;
 }
 
 .info_display {

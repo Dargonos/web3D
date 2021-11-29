@@ -75,7 +75,6 @@ export class View {
     this._gltfPaths.push({id: this._gltfPaths.length, path: 'assets/models/banana_plant.glb', name: 'Banana Plant', scale: 0.2})
     this._gltfPaths.push({id: this._gltfPaths.length, path: 'assets/models/elephant.glb', name: 'Elephant', scale: 0.5})
     this._gltfPaths.push({id: this._gltfPaths.length, path: 'assets/models/Fox.glb', name: 'Fox', scale: 0.005})
-    //this._gltfPaths.push({id: this._gltfPaths.length, path: 'assets/models/LittlestTokyo.glb', name: 'Littlest Tokyo', scale: 0.002})
     this._gltfPaths.push({id: this._gltfPaths.length, path: 'assets/models/meat.glb', name: 'Meat', scale: 0.2})
     this._gltfPaths.push({id: this._gltfPaths.length, path: 'assets/models/rabbit_plush.glb', name: 'Rabbit Plush', scale: 0.05})
     this._gltfPaths.push({id: this._gltfPaths.length, path: 'assets/models/spirit_of_nature.glb', name: 'Spirit of Nature', scale: 0.5})
