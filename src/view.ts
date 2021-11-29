@@ -48,6 +48,8 @@ export class View {
 
   protected _gltfPaths: {id: number, path: string, name: string, scale: number}[]
 
+  protected  _rotationSpeed
+
   private readonly _name: string;
 
   constructor(renderer: WebGLRenderer) {
@@ -55,6 +57,7 @@ export class View {
     this._scene = new Scene();
     this._cam = new PerspectiveCamera(110);
     this._cam.position.set(0, 0.25, 7);
+    this._rotationSpeed = 0.001
 
     this._gui = new GUI();
     this._gui.hide();

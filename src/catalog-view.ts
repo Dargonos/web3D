@@ -16,7 +16,6 @@ export default class CatalogView extends View {
     spawnRange = 2
     itemMargin = 1
     movementSpeed = 0.1
-    rotationSpeed = 0.01
     displayedMeshName: string = ""
     raycaster: Raycaster
     mouse: Vector2
@@ -218,7 +217,7 @@ export default class CatalogView extends View {
     public moveMeshes() {
         for (let i = 0; i < this.meshList.length; i++) {
             let currentItem = this.meshList[i]
-            currentItem.model.rotateY(this.rotationSpeed)
+            currentItem.model.rotateY(this._rotationSpeed)
 
             if (currentItem.destination !== currentItem.model.position) {
                 if (this.movementSpeed * (currentItem.destination.x - currentItem.model.position.x) > Math.abs(currentItem.destination.x - currentItem.model.position.x)) {

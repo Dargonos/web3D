@@ -19,7 +19,10 @@ export default class ProductView extends View {
     light: DirectionalLight;
 
     itemId: number
+    nextItemId: number
     loadedItem?: Group
+    isAppearing: boolean = false
+    isDisappearing: boolean = false
 
     shadowPlaneGeometry: PlaneBufferGeometry;
     shadowPlaneMaterial: ShadowMaterial;
@@ -76,6 +79,7 @@ export default class ProductView extends View {
         itemID = 0
 
         this.itemId = itemID
+        this.nextItemId = this.itemId
         this.loadItem(this.itemId)
 
         this.controls = new OrbitControls(this._cam, this._renderer.domElement) as OrbitControls;
@@ -107,8 +111,7 @@ export default class ProductView extends View {
             (gltf) => {
                 const model = gltf.scene;
                 model.position.set(0,0,0)
-                let scale = this._gltfPaths[itemId].scale * 10
-                model.scale.set(scale, scale, scale)
+                model.scale.set(0, 0, 0)
                 model.castShadow = true
 
                 model.traverse((child) => {
@@ -120,6 +123,7 @@ export default class ProductView extends View {
 
                 this.loadedItem = model
                 this._scene.add(this.loadedItem)
+                this.isAppearing = true
             },
             undefined,
             (err) => console.error(err)
@@ -127,8 +131,7 @@ export default class ProductView extends View {
     }
 
     public unloadItem() {
-        if (this.loadedItem)
-            this._scene.remove(this.loadedItem)
+        this.isDisappearing = true
     }
 
     public initialize() {
@@ -170,9 +173,8 @@ export default class ProductView extends View {
             previousButton.style.visibility = 'visible'
 
             previousButton.addEventListener('click', () => {
+                this.nextItemId = this.itemId != 0 ? (this.itemId - 1) : this._gltfPaths.length - 1
                 this.unloadItem()
-                this.itemId = this.itemId != 0 ? (this.itemId - 1) : this._gltfPaths.length - 1
-                this.loadItem(this.itemId)
             })
         }
     }
@@ -183,9 +185,8 @@ export default class ProductView extends View {
             nextButton.style.visibility = 'visible'
 
             nextButton.addEventListener('click', () => {
+                this.nextItemId = (this.itemId + 1) % this._gltfPaths.length
                 this.unloadItem()
-                this.itemId = (this.itemId + 1) % this._gltfPaths.length
-                this.loadItem(this.itemId)
             })
         }
     }
@@ -201,8 +202,32 @@ export default class ProductView extends View {
     }
 
     public update(delta: number, elapsed: number) {
-
         this.controls.update();
+
+        if (this.loadedItem) {
+            this.loadedItem.rotateY(this._rotationSpeed)
+
+            if (this.isAppearing) {
+                if (this.loadedItem.scale.x <= this._gltfPaths[this.nextItemId].scale * 10) {
+                    let newScale = this.loadedItem.scale.x + (0.1 * this._gltfPaths[this.nextItemId].scale)
+                    this.loadedItem.scale.set(newScale, newScale, newScale)
+                } else {
+                    this.isAppearing = false
+                    this.itemId = this.nextItemId
+                }
+            }
+
+            if (this.isDisappearing) {
+                if (this.loadedItem.scale.x >= 0) {
+                    let newScale = this.loadedItem.scale.x - (1.2 * this._gltfPaths[this.itemId].scale)
+                    this.loadedItem.scale.set(newScale, newScale, newScale)
+                } else {
+                    this.isDisappearing = false
+                    this._scene.remove(this.loadedItem)
+                    this.loadItem(this.nextItemId)
+                }
+            }
+        }
     }
 
     public traverseScene(color: Color) {
