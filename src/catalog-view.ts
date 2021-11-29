@@ -141,6 +141,7 @@ export default class CatalogView extends View {
                         model.position.set(-1 * this.itemMargin,0,0)
                     else
                         model.position.set(i * this.itemMargin,0,0)
+                    model.position.z = - Math.abs(model.position.x) / 5
 
                     let scale = item.scale
                     model.scale.set( scale, scale, scale )
@@ -155,7 +156,7 @@ export default class CatalogView extends View {
                     });
 
                     model.name = item.name
-                    this.meshList.push({model: model, destination: new Vector3(model.position.x,0,0)})
+                    this.meshList.push({model: model, destination: new Vector3(model.position.x,0,model.position.z)})
 
                     if (- this.spawnRange <= model.position.x && model.position.x <= this.spawnRange)
                         this._scene.add(model)
@@ -203,6 +204,7 @@ export default class CatalogView extends View {
                 newPos.x = this.itemMargin * 2
                 currentItem.model.position.x = newPos.x
             }
+            currentItem.model.position.z = - Math.abs(newPos.x) / 5
 
             this.meshList[i].destination = newPos
             if (this.meshList[i].model.name != this.displayedMeshName && Math.abs(this.meshList[i].destination.x) < this.itemMargin / 3)
