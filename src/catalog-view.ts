@@ -1,14 +1,15 @@
 import {View} from "./view";
 import {
     DirectionalLight, Group,
-    Mesh,
-    Raycaster, Vector2, Vector3, WebGLRenderer,
+    Mesh, PMREMGenerator,
+    Raycaster, UnsignedByteType, Vector2, Vector3, WebGLRenderer,
 } from "three";
 import {DRACOLoader} from "three/examples/jsm/loaders/DRACOLoader";
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 import {BokehPass} from "three/examples/jsm/postprocessing/BokehPass";
 import {EffectComposer} from "three/examples/jsm/postprocessing/EffectComposer";
 import {RenderPass} from "three/examples/jsm/postprocessing/RenderPass";
+import {RGBELoader} from "three/examples/jsm/loaders/RGBELoader";
 
 export default class CatalogView extends View {
     meshList: {model: Group, destination: Vector3}[] = []
@@ -85,6 +86,16 @@ export default class CatalogView extends View {
         dirLight2.castShadow = true;
 
         this._scene.add(dirLight1, dirLight2)
+
+        const pmremGenerator = new PMREMGenerator(this._renderer);
+        pmremGenerator.compileEquirectangularShader();
+        const hdrTexture = new RGBELoader()
+            .setDataType(UnsignedByteType)
+            .load('assets/env/market.hdr', () => {
+                const target = pmremGenerator.fromEquirectangular(hdrTexture);
+                this._scene.environment = target.texture;
+                this._scene.background = target.texture;
+            });
 
         window.addEventListener('wheel', (event) => {
             event.preventDefault()
