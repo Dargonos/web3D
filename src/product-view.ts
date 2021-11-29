@@ -26,6 +26,7 @@ export default class ProductView extends View {
     shadowPlaneMesh: Mesh;
 
     colors : Color[] = [
+        new Color("rgb(255,255,255)"),
         new Color("rgb(255,0,0)"),
         new Color("rgb(242,122,16)"),
         new Color( "rgb(255,235,0)"),
@@ -63,7 +64,7 @@ export default class ProductView extends View {
 
         this.colorPickerGeometry = new SphereBufferGeometry(0.4)
 
-        for (let idx = 0; idx < 7; idx++) {
+        for (let idx = 0; idx < this.colors.length; idx++) {
             let mesh = new Mesh(this.colorPickerGeometry, new MeshPhysicalMaterial({metalness: 0.2, roughness: 0.1}))
             mesh.position.set(5, idx, 0)
             mesh.material.color.set(this.colors[idx])
