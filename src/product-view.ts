@@ -1,7 +1,7 @@
 import {View} from "./view";
 import {
     Color,
-    DirectionalLight, Mesh, MeshPhysicalMaterial, PlaneBufferGeometry,
+    DirectionalLight, Group, Mesh, MeshPhysicalMaterial, PlaneBufferGeometry,
     PMREMGenerator, Raycaster, ShadowMaterial, SphereBufferGeometry,
     UnsignedByteType,
     Vector2,
@@ -18,6 +18,9 @@ export default class ProductView extends View {
     mouse: Vector2;
     light: DirectionalLight;
 
+    itemId: number
+    loadedItem?: Group
+
     shadowPlaneGeometry: PlaneBufferGeometry;
     shadowPlaneMaterial: ShadowMaterial;
     shadowPlaneMesh: Mesh;
@@ -32,7 +35,7 @@ export default class ProductView extends View {
         new Color( "rgb(224,109,231)")];
     colorPickerGeometry: SphereBufferGeometry;
 
-    constructor(renderer: WebGLRenderer, gltfPath: string) {
+    constructor(renderer: WebGLRenderer, itemID: number) {
         super(renderer);
 
         this._renderer.shadowMap.enabled = true;
@@ -69,34 +72,10 @@ export default class ProductView extends View {
         }
 
         //TODO remove
-        gltfPath = 'assets/models/LittlestTokyo.glb';
-        gltfPath = 'assets/models/Fox.glb';
+        itemID = 0
 
-        const dracoLoader = new DRACOLoader();
-        dracoLoader.setDecoderPath( 'lib/draco/' );
-
-        const loaderGLTF = new GLTFLoader();
-        loaderGLTF.setDRACOLoader(dracoLoader);
-        loaderGLTF.load(
-            gltfPath,
-            (gltf) => {
-                const model = gltf.scene;
-                model.position.set(0,0,0)
-                model.scale.set( 0.01, 0.01, 0.01 )
-                model.castShadow = true
-
-                model.traverse((child) => {
-                    if (child instanceof Mesh) {
-                        child.material.color = this.colors[0];
-                        child.castShadow = true;
-                    }
-                });
-
-                this._scene.add(model)
-            },
-            undefined,
-            (err) => console.error(err)
-        );
+        this.itemId = itemID
+        this.loadItem(this.itemId)
 
         this.controls = new OrbitControls(this._cam, this._renderer.domElement) as OrbitControls;
 
@@ -116,6 +95,41 @@ export default class ProductView extends View {
 
     }
 
+    public loadItem(itemId: number) {
+        const dracoLoader = new DRACOLoader();
+        dracoLoader.setDecoderPath( 'lib/draco/' );
+
+        const loaderGLTF = new GLTFLoader();
+        loaderGLTF.setDRACOLoader(dracoLoader);
+        loaderGLTF.load(
+            this._gltfPaths[itemId].path,
+            (gltf) => {
+                const model = gltf.scene;
+                model.position.set(0,0,0)
+                let scale = this._gltfPaths[itemId].scale * 10
+                model.scale.set(scale, scale, scale)
+                model.castShadow = true
+
+                model.traverse((child) => {
+                    if (child instanceof Mesh) {
+                        child.material.color = this.colors[0];
+                        child.castShadow = true;
+                    }
+                });
+
+                this.loadedItem = model
+                this._scene.add(this.loadedItem)
+            },
+            undefined,
+            (err) => console.error(err)
+        );
+    }
+
+    public unloadItem() {
+        if (this.loadedItem)
+            this._scene.remove(this.loadedItem)
+    }
+
     public initialize() {
         super.initialize()
 
@@ -123,14 +137,9 @@ export default class ProductView extends View {
         if (catalogButton) {
             catalogButton.style.visibility = 'visible'
         }
-        const previousButton = document.getElementById('previous');
-        if (previousButton) {
-            previousButton.style.visibility = 'visible'
-        }
-        const nextButton = document.getElementById('next');
-        if (nextButton) {
-            nextButton.style.visibility = 'visible'
-        }
+
+        this.initPreviousButton()
+        this.initNextButton()
 
         this._renderer.domElement.addEventListener( 'click', (event) => {
             this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -144,7 +153,6 @@ export default class ProductView extends View {
                     this.traverseScene(newColor);
                 }
             }
-
         });
 
         const itemTitle = document.getElementById('item_title');
@@ -153,6 +161,32 @@ export default class ProductView extends View {
         }
 
         this._gui.hide()
+    }
+
+    public initPreviousButton() {
+        const previousButton = document.getElementById('previous');
+        if (previousButton) {
+            previousButton.style.visibility = 'visible'
+
+            previousButton.addEventListener('click', () => {
+                this.unloadItem()
+                this.itemId = this.itemId != 0 ? (this.itemId - 1) : this._gltfPaths.length - 1
+                this.loadItem(this.itemId)
+            })
+        }
+    }
+
+    public initNextButton() {
+        const nextButton = document.getElementById('next');
+        if (nextButton) {
+            nextButton.style.visibility = 'visible'
+
+            nextButton.addEventListener('click', () => {
+                this.unloadItem()
+                this.itemId = (this.itemId + 1) % this._gltfPaths.length
+                this.loadItem(this.itemId)
+            })
+        }
     }
 
     public destroy() {
